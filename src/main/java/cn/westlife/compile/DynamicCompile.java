@@ -7,7 +7,7 @@ import java.util.concurrent.Callable;
 import java.util.function.BiFunction;
 
 /**
- * @author zhuangchao
+ * @author westlife
  * @date 2018/12/6 10:11
  */
 public class DynamicCompile {
