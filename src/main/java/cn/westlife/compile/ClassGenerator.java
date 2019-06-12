@@ -4,6 +4,9 @@ import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -63,6 +66,29 @@ public class ClassGenerator {
         // WebappClassLoader -> StandardClassLoader -> AppClassLoader -> ExtClassLoader -> BootstrapClassloader
         URLClassLoader classLoader = new URLClassLoader(urls, parent);
         return Class.forName(newClassName, true, classLoader);
+    }
+
+
+    public static Class<?> loadClass(String classFullName, String code, String classRootDir) throws ClassNotFoundException, IOException {
+        File root = new File(classRootDir);
+        if (!root.exists()) {
+            root.mkdirs();
+        }
+
+        String className = classFullName.substring(classFullName.lastIndexOf(".") + 1);
+        File file = new File(classRootDir + File.separator + className + JavaFileObject.Kind.CLASS.extension);
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+        OutputStream os = new FileOutputStream(file);
+        os.write(code.getBytes());
+        os.flush();
+        os.close();
+
+        URL[] urls = new URL[]{root.toURI().toURL()};
+        ClassLoader parent = ClassGenerator.class.getClassLoader();
+        URLClassLoader classLoader = new URLClassLoader(urls, parent);
+        return Class.forName(classFullName, true, classLoader);
     }
 
     private static String getJars(String jarFile) {
